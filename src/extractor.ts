@@ -1,10 +1,10 @@
-import { CsvData, DataDictionary } from './interfaces'
+import { CsvData, CsvAdvData, DataDictionary, AdvDictionary } from './interfaces'
 /**
- * method to reshape and extract data from csv file
+ * method to reshape and extract data from Data csv file
  * @param content data from csv file
  * @return reshaped data
  */
-export const extractReaquiredData = (content: CsvData[], enrichExisitingData?: DataDictionary): DataDictionary => {
+export const extractReaquiredDataFromDataFile = (content: CsvData[], enrichExisitingData?: DataDictionary): DataDictionary => {
     let result: DataDictionary = {
         compaign: {},
         creatives: {},
@@ -56,6 +56,23 @@ export const extractReaquiredData = (content: CsvData[], enrichExisitingData?: D
         // adding impressions for the creative
         acc.creativesCompaignByDateImpressions[val["Creative ID"]].dates[val["Date"]] += val["Impressions"]
 
+        return acc
+    }, result)
+}
+/**
+ * method to reshape and extract data from Adveritsers csv file
+ * @param content data from csv file
+ * @return reshaped data
+ */
+export const extractReaquiredDataFromAdvFile = (content: CsvAdvData[], enrichExisitingData?: AdvDictionary): AdvDictionary => {
+    let result = {}
+
+    if (enrichExisitingData != null) {
+        result = enrichExisitingData;
+    }
+
+    return content.reduce((acc, val: CsvAdvData) => {
+        acc[val['Advertiser ID']] = val['Advertiser Name']
         return acc
     }, result)
 }

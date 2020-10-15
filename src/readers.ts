@@ -32,23 +32,13 @@ export const getFiles = (directory: string, re?: RegExp): Promise<string[]> => {
     })
 }
 
-// due to limitations of csv parser all the values will be converted to string
-// so we need header which are string as there is a least amount of the them
-const stringHeaders = [
-    "Date",
-    "Advertiser Name",
-    "Campaign Name",
-    "Order Name",
-    "Creative Name",
-    "Creative Preview URL"
-]
 /**
  * method to process csv file
  * @param fileName name of the file to load
  * @param dataDirectory path to data directory
  * @return {Promise} 
  */
-export const processCsvFile = (fileName: string, dataDirectory: string): Promise<CsvData[]> => {
+export const processCsvFile = (fileName: string, dataDirectory: string, stringHeaders: string[], include?: { field: string, dictionary: { [key: string]: any } }): Promise<CsvData[]> => {
     // data collector
     const content: CsvData[] = []
     // file to load
@@ -75,7 +65,14 @@ export const processCsvFile = (fileName: string, dataDirectory: string): Promise
                 }
             ))
             .on('data', (row: CsvData) => {
-                content.push(row)
+                // only include based on allowed values
+                if (include != null) {
+                    if (include['dictionary'][row[include['field']]] != null) {
+                        content.push(row)
+                    }
+                } else {
+                    content.push(row)
+                }
             })
             .on('end', () => {
                 console.log(`${fileName} successfully processed. ${content.length} rows were extracted.`)
